@@ -1,7 +1,6 @@
-import * as THREE from 'three'; // Make sure THREE.js is imported
+import * as THREE from 'three'; 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-// Enemy setup
 let enemy;
 let enemyBox;
 const enemySpeed = 0.02;
@@ -18,7 +17,7 @@ export function loadEnemy(scene, playerBox, onPlayerDetected) {
 
         scene.add(enemy);
 
-        // Optional: Add enemy animation if you have one
+        // enemy animation (not done)
         const enemyMixer = new THREE.AnimationMixer(enemy);
         const enemyAction = enemyMixer.clipAction(gltf.animations[0]);
         enemyAction.play();
