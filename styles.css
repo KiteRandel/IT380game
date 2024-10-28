@@ -1,0 +1,44 @@
+canvas { 
+    display: block; /* Ensure canvas takes up the full viewport */
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 10; /* Ensure it appears above other elements */
+}
+/* Basic styling to avoid the white screen */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black; /* Set background to black or any other color */
+}
+
+.message {
+    position: fixed; /* Use fixed positioning */
+    bottom: 20px; /* Distance from the bottom */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust position to center it */
+    color: white; /* Change color as needed */
+    font-size: 240px; /* Adjust size as needed */
+    text-align: center; /* Center the text */
+    z-index: 1000; /* Ensure it appears above other elements */
+    display: none; /* Initially hide the message */
+}
+
+.show-message {
+    display: block; /* Show the message when active */
+}
+
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
