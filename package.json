@@ -2,7 +2,7 @@
   "scripts": {
     "build": "vite build",
     "predeploy": "npm run build",
-    "deploy": "build -d dist"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "three": "^0.169.0",
