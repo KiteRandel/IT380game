@@ -1,0 +1,16 @@
+{
+    "name": "your-app-name",
+    "version": "1.0.0",
+    "description": "A Vanilla JS application",
+    "main": "index.html",
+    "scripts": {
+      "dev": "vite"
+    },
+    "keywords": [],
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+      "three": "^0.169.0",
+      "vite": "^5.4.10"
+    }
+  }
