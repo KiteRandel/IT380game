@@ -1,5 +1,5 @@
 import * as THREE from 'three'; // Make sure THREE.js is imported
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Enemy setup
 let enemy;
@@ -11,7 +11,7 @@ let enemyDirection = 1;
 // Load the enemy model
 export function loadEnemy(scene, playerBox, onPlayerDetected) {
     const loader = new GLTFLoader();
-    loader.load('/models/a_girl2.glb', (gltf) => {
+    loader.load('./models/a_girl2.glb', (gltf) => {
         enemy = gltf.scene;
         enemy.scale.set(1, 1, 1);
         enemy.position.set(0, 0, 0); // Set to the center or any valid position
