@@ -4,8 +4,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js';
 import { loadEnemy, moveEnemy } from './enemy.js';
 
-
-// Create Scene and Renderer
+function startScence(){
+    // Create Scene and Renderer
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -19,7 +19,7 @@ const effect = new OutlineEffect(renderer, {
 
 // Set up Isometric Camera
 const aspectRatio = window.innerWidth / window.innerHeight;
-const zoomFactor = 7; // Adjust this value to control the zoom level
+const zoomFactor = 5; // Adjust this value to control the zoom level
 
 const camera = new THREE.OrthographicCamera(
     -zoomFactor * aspectRatio,  // left
@@ -43,7 +43,7 @@ const floorLoader = new GLTFLoader();
 let environmentModel; // Reference to the environment model
 let environmentBox; // Bounding box for environment
 
-floorLoader.load('./models/Room3.glb', (gltf) => {
+floorLoader.load('/models/art_Room1.glb', (gltf) => {
     environmentModel = gltf.scene;
     environmentModel.scale.set(1, 1, 1); // Adjust scale if necessary
     environmentModel.position.set(0, 0, 0); // Adjust position if necessary
@@ -67,10 +67,10 @@ let activeAction; // Store current active animation
 let playerBox; // Bounding box for player
 let previousPlayerPosition = new THREE.Vector3(); // To store the previous position
 
-loader.load('./models/girl_center.glb', (gltf) => {
+loader.load('/models/COLORED5.glb', (gltf) => {
     const model = gltf.scene;
     model.scale.set(1, 1, 1); 
-    model.position.set(0, 0, 3); 
+    model.position.set(-4, 0, 3); 
     scene.add(model);
 
     player = model;
@@ -84,7 +84,7 @@ loader.load('./models/girl_center.glb', (gltf) => {
     });
 
     // Set an initial animation
-    activeAction = actions['Sneaky']; // Start with the "sneaky" animation
+    activeAction = actions['StandingStill']; // Start with the "sneaky" animation
     if (activeAction) activeAction.play();
 }, undefined, (error) => {
     console.error('An error occurred while loading the model', error);
@@ -93,34 +93,83 @@ loader.load('./models/girl_center.glb', (gltf) => {
 
 // Load Collectible Model (a_collect.glb)
 const collectibleLoader = new GLTFLoader();
+const doorLoader = new GLTFLoader();
 const collectibles = []; // Array to hold collectibles
-const collectibleCount = 5; // Number of collectibles
+const collectibleCount = 1; // Number of collectibles
 let booksCollected = 0; // Track number of collected books
 
-collectibleLoader.load('./models/a_book.glb', (gltf) => {
-    const collectibleModel = gltf.scene;
-    collectibleModel.scale.set(4, 4, 4); // Adjust the scale if necessary
-    collectibleModel.traverse((child) => {
+// collectibleLoader.load('/models/a_book.glb', (gltf) => {
+//     const collectibleModel = gltf.scene;
+//     collectibleModel.scale.set(4, 4, 4); // Adjust the scale if necessary
+//     collectibleModel.traverse((child) => {
+//         if (child.isMesh) {
+//             child.castShadow = true; // Optional: enable shadows
+//         }
+//     });
+
+//     // Add collectibles to the scene
+//     for (let i = 0; i < collectibleCount; i++) {
+//         const collectible = collectibleModel.clone(); // Clone the model for each collectible
+
+//         // Generate random positions within the room boundaries
+//         const randomX = Math.random() * (roomSize - 2) - (roomSize / 2 - 1); // Ensuring it stays within the walls
+//         const randomZ = Math.random() * (roomSize - 2) - (roomSize / 2 - 1); // Ensuring it stays within the walls
+        
+//         collectible.position.set(randomX, 0.5, randomZ); // Random positions
+//         scene.add(collectible);
+//         collectibles.push(collectible);
+//     }
+// }, undefined, (error) => {
+//     console.error('An error occurred while loading the collectible model', error);
+// });
+
+let doorBoundingBox; // Declare the bounding box variable
+
+doorLoader.load('/models/Door.glb', (gltf) => {
+    const doorModel = gltf.scene;
+    doorModel.scale.set(1, 1, 1); // Adjust scale if necessary
+
+    doorModel.traverse((child) => {
         if (child.isMesh) {
-            child.castShadow = true; // Optional: enable shadows
+            child.castShadow = true; // Enable shadows if needed
         }
     });
 
-    // Add collectibles to the scene
-    for (let i = 0; i < collectibleCount; i++) {
-        const collectible = collectibleModel.clone(); // Clone the model for each collectible
+    doorModel.position.set(0, 0, 0); 
+    scene.add(doorModel);
 
-        // Generate random positions within the room boundaries
-        const randomX = Math.random() * (roomSize - 2) - (roomSize / 2 - 1); // Ensuring it stays within the walls
-        const randomZ = Math.random() * (roomSize - 2) - (roomSize / 2 - 1); // Ensuring it stays within the walls
-        
-        collectible.position.set(randomX, 0.5, randomZ); // Random positions
-        scene.add(collectible);
-        collectibles.push(collectible);
-    }
-}, undefined, (error) => {
-    console.error('An error occurred while loading the collectible model', error);
+    // Initialize the bounding box after adding the model to the scene
+    doorBoundingBox = new THREE.Box3().setFromObject(doorModel);
 });
+
+const canvasLoader = new GLTFLoader();
+let canvasModel; // Reference to the canvas model
+let canvasBoundingBox; // Bounding box for canvas
+
+canvasLoader.load('/models/canvasImpasto.glb', (gltf) => {
+    canvasModel = gltf.scene;
+    canvasModel.scale.set(1, 1, 1); // Adjust the scale as necessary
+    canvasModel.position.set(roomSize / -300, 0.1, -roomSize/10); // Position it at the top right within walls
+
+    scene.add(canvasModel);
+
+    // Create the bounding box after adding the model to the scene
+    canvasBoundingBox = new THREE.Box3().setFromObject(canvasModel);
+}, undefined, (error) => {
+    console.error('An error occurred while loading the canvas model', error);
+});
+
+// Canvas collision
+function checkCanvasCollision() {
+    if (playerBox && canvasBoundingBox && playerBox.intersectsBox(canvasBoundingBox)) {
+        // Display popup or interaction prompt when the player collides with the canvas
+        console.log('Canvas interaction!');
+        displayPopup();
+        // scene.remove(canvasBoundingBox);
+        // scene.remove(canvasModel)
+        // showMessage('You found an impasto canvas!', 3000);
+    }
+}
 
 
 // Lighting
@@ -128,73 +177,60 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 10, 5).normalize();
 scene.add(light);
 
-// Player movement controls
-const keys = {};
-let moving = false; // Track if player is moving
+// Track active movement keys
+const keys = { w: false, a: false, s: false, d: false };
+let isMoving = false; // Track if the player is moving
 
+// Event listeners for keydown and keyup
 window.addEventListener('keydown', (event) => {
-    keys[event.key] = true;
-    moving = true; // Set moving to true when a key is pressed
-    playAnimation('Sneaky'); // Play the sneaky animation
+    if (event.key in keys) {
+        keys[event.key] = true;
+        if (!isMoving) {
+            playAnimation('RealWalk'); // Start walking animation if not already moving
+            isMoving = true;
+        }
+    }
 });
 
 window.addEventListener('keyup', (event) => {
-    keys[event.key] = false;
-    moving; // Set moving to false when keys are released
-    playAnimation('Sneaky'); // Switch back to idle animation
+    if (event.key in keys) {
+        keys[event.key] = false;
+        if (!Object.values(keys).some(value => value)) {
+            playAnimation('StandingStill'); // Switch to idle animation if no movement keys are pressed
+            isMoving = false;
+        }
+    }
 });
 
+// Move player based on keys pressed
 function movePlayer() {
     if (player) {
-        // Save previous position
-        previousPlayerPosition.copy(player.position);
-
-        const rotationSpeed = 0.1; // Adjust rotation speed for smoother turning
         const moveSpeed = 0.01; // Adjust movement speed
-
-        let isMoving = false; // Track if the player is moving
+        const rotationSpeed = 0.1; // Adjust rotation speed for smoother turning
         let targetRotationY = player.rotation.y; // Target rotation variable
 
-        // Determine target rotation
-        if (keys['a']) {
-            targetRotationY += rotationSpeed; // Rotate left (counterclockwise)
-            isMoving = true;
-        }
-        if (keys['d']) {
-            targetRotationY -= rotationSpeed; // Rotate right (clockwise)
-            isMoving = true;
-        }
-
-        // Smoothly interpolate the player's rotation
+        // Handle rotation
+        if (keys['a']) targetRotationY += rotationSpeed;
+        if (keys['d']) targetRotationY -= rotationSpeed;
         player.rotation.y = THREE.MathUtils.lerp(player.rotation.y, targetRotationY, 0.1);
 
-        // Movement logic
-        if (keys['s']) {
-            player.position.z -= moveSpeed * Math.cos(player.rotation.y); // Move forward
-            player.position.x -= moveSpeed * Math.sin(player.rotation.y); // Move forward
-            isMoving = true;
-        }
+        // Handle movement
         if (keys['w']) {
-            player.position.z += moveSpeed * Math.cos(player.rotation.y); // Move backward
-            player.position.x += moveSpeed * Math.sin(player.rotation.y); // Move backward
-            isMoving = true;
+            player.position.z += moveSpeed * Math.cos(player.rotation.y);
+            player.position.x += moveSpeed * Math.sin(player.rotation.y);
         }
-
-        // Play the walking animation if the player is moving
-        if (isMoving) {
-            playAnimation('Sneaky'); // Play the walking animation
-        } else {
-            playAnimation('Idle'); // Play the idle animation when not moving
+        if (keys['s']) {
+            player.position.z -= moveSpeed * Math.cos(player.rotation.y);
+            player.position.x -= moveSpeed * Math.sin(player.rotation.y);
         }
 
         // Update player bounding box
         playerBox = new THREE.Box3().setFromObject(player);
 
-        // Handle collision with invisible walls
+        // Collision handling
         handleWallCollisions();
-
-        // Check for collisions with collectibles
-        checkCollectibles();
+        checkCanvasCollision();
+        checkDoor();
     }
 }
 
@@ -256,20 +292,21 @@ walls.push(rightWall);
 
 // Check for collisions with collectibles
 // replace with press "e" later
-function checkCollectibles() {
-    collectibles.forEach((collectible, index) => {
-        const collectibleBox = new THREE.Box3().setFromObject(collectible);
-        if (playerBox.intersectsBox(collectibleBox)) {
-            // Remove collectible from the scene
-            scene.remove(collectible);
-            collectibles.splice(index, 1); // Remove from the array
-            booksCollected++; // Increment the count
-            updateUI(); // Update the UI
-            console.log('Collectible collected!');
-            // Update game state, score, or other logic here
-        }
-    });
-}
+// function checkCollectibles() {
+//     collectibles.forEach((collectible, index) => {
+//         const collectibleBox = new THREE.Box3().setFromObject(collectible);
+//         if (playerBox.intersectsBox(collectibleBox)) {
+//             // Remove collectible from the scene
+//             scene.remove(collectible);
+//             collectibles.splice(index, 1); // Remove from the array
+//             booksCollected++; // Increment the count
+//             updateUI(); // Update the UI
+//             console.log('Collectible collected!');
+//             // Update game state, score, or other logic here
+//             displayPopup();
+//         }
+//     });
+// }
 
 // Update UI with the number of collected books
 function updateUI() {
@@ -325,7 +362,7 @@ function animate() {
 }
 
 
-animate();
+    animate();
 
 // Handle window resize
 window.addEventListener('resize', () => {
@@ -333,6 +370,17 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+// Player interact with door 
+function checkDoor(){
+    if (playerBox.intersectsBox(doorBoundingBox)) {
+        displayTestPopUp();
+    }
+}
+
+}
+
+
+
 
 // Test message display
 function showMessage(text, duration = 2000) {
@@ -346,5 +394,53 @@ function showMessage(text, duration = 2000) {
     }
 }
 
+// Technique Display
+const closeBtn = document.getElementById("close-btn");
+const popUp = document.getElementById("pop-up-container");
+const testPopup = document.getElementById("test-container");
+
+closeBtn.addEventListener("click", closePopup);
+
+function closePopup() {
+  popUp.style.display = "none";
+}; 
+
+function displayPopup(){
+    popUp.style.display = "block";
+}
+
+function displayTestPopUp(){
+    testPopup.style.display = "block";
+}
+
+// Technique Quiz
+const imgNode = document.querySelectorAll(".single-card");
+for (let i = 0; i < imgNode.length; i++) {
+    imgNode[i].addEventListener("click",function(){
+        let imgThis = this;
+        imgThis.classList.add("rotate");
+
+        setTimeout(function(){
+            imgThis.classList.remove("rotate");
+        }, 2000)
+    });
+    
+}
+
+// Player interact with door 
+
+
+// Start condition 
+const playButton = document.getElementById("play-btn");
+const backgroundImage = document.querySelector(".back-img");
+playButton.addEventListener('click', () => {
+    playButton.style.display = 'none'; 
+    backgroundImage.classList.add('slide-fade'); 
+        setTimeout(() => {
+            backgroundImage.style.display = 'none'; 
+            startScence();
+        }, 1000);
+});
+
+
 // Example test call
-showMessage('Sfumato is a hazy effect created through blending tones', 2000);

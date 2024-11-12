@@ -8,7 +8,55 @@
 </head>
 <body>
 	<div id="message" class="message"></div>
-    <div id="ui">Books Collected: 0</div>
+    <!-- <div id="ui">Books Collected: 0</div> -->
+    <div class="back-img">
+        <button id="play-btn">Play</button>
+    </div>
+
+    <div id="pop-up-container" class="pop-up-container">
+        <div>
+            <img src="/imgs/Van_Gogh_Light (1).jpg" alt="sfumato-img">
+            <h3>Impasto</h2>
+            <p>Paint is laid on an area of the surface thickly, thick enough that the brush or painting-knife strokes are visible (visually intreputed as lines). Paint can also be mixed right on the canvas. In-person, the paint appears to be coming out of the canvas.</p>
+            <button type="button" id="close-btn">
+                <span class="icon-cross"></span>
+            </button>
+        </div>
+    </div>
+    <div class="test-container" id="test-container">
+        <h2>Which painting best shows the technique?</h2>
+        <div class="wrapper">
+            <div class="single-card">
+                <div class="front" id="front-1"></div>
+
+                <div class="back" id="back-1">
+                    <div class="content">
+                        <p>Incorrect</p>
+                    </div>
+                </div>
+            </div>
+            <div class="single-card">
+                <div class="front" id="front-2"></div>
+
+                <div class="back" id="back-2">
+                    <div class="content">
+                        <p>Incorrect</p>
+                    </div>
+                </div>
+            </div>
+            <div class="single-card">
+                <div class="front" id="front-3"></div>
+
+                <div class="back" id="back-3">
+                    <div class="content">
+                        <p>Correct</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
     <script type="module" src="app.js"></script>
 </body>
 </html>
+
